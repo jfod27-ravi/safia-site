@@ -973,7 +973,10 @@ function submitForm() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(buildPayload())
   })
-  .then(() => goToScreen('thankyou'))
+  .then(() => {
+    try { localStorage.setItem('safia_submitted', JSON.stringify({ ts: Date.now() })); } catch(e) {}
+    goToScreen('thankyou');
+  })
   .catch(() => {
     btn.textContent = 'Get My Free Diagnostic Report';
     btn.disabled = false;
@@ -1042,6 +1045,19 @@ Produce a 1–2 page diagnostic:
   Section 8 — Next Steps
 ─────────────────────────────────────────────────────────`;
 }
+
+// ─── ANTI-ABUSE — PRIOR SUBMISSION CHECK ─────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    const flag = localStorage.getItem('safia_submitted');
+    if (flag) {
+      const { ts } = JSON.parse(flag);
+      if (Date.now() - ts < 30 * 24 * 60 * 60 * 1000) {
+        goToScreen('thankyou');
+      }
+    }
+  } catch(e) { /* corrupt flag — ignore */ }
+});
 
 function buildPayload() {
   return {
