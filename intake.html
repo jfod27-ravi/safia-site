@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safia — Diagnostic Intake</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0f1b2d;
+      --ink:       #1c2b3a;
+      --gold:      #c9a84c;
+      --gold-h:    #b8943f;
+      --gold-lt:   rgba(201, 168, 76, 0.10);
+      --white:     #ffffff;
+      --off-white: rgba(255, 255, 255, 0.82);
+      --dim:       rgba(255, 255, 255, 0.42);
+      --border:    rgba(255, 255, 255, 0.11);
+      --card-bg:   rgba(255, 255, 255, 0.04);
+    }
+
+    html { height: 100%; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+      z-index: 200;
+      width: 0%;
+    }
+
+    /* ─── SCREEN SYSTEM ─── */
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 88px 28px 72px;
+      max-width: 660px;
+      margin: 0 auto;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .screen.active { display: flex; }
+
+    /* ─── EYEBROW ─── */
+    .eyebrow {
+      font-size: 0.70rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 24px;
+    }
+
+    /* ─── QUESTION TEXT ─── */
+    .question-text {
+      font-size: clamp(1.55rem, 3.8vw, 2.5rem);
+      font-weight: normal;
+      line-height: 1.22;
+      color: var(--white);
+      margin-bottom: 14px;
+    }
+
+    .question-sub {
+      font-size: 0.98rem;
+      color: var(--dim);
+      margin-bottom: 40px;
+      line-height: 1.65;
+    }
+
+    /* ─── RADIO OPTIONS ─── */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .option {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 17px 20px;
+      cursor: pointer;
+      transition: border-color 0.16s, background 0.16s;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--card-bg);
+    }
+    .option:hover { border-color: rgba(201,168,76,0.5); background: var(--gold-lt); }
+    .option.selected { border-color: var(--gold); background: var(--gold-lt); }
+
+    .option-circle {
+      width: 19px;
+      height: 19px;
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 3px;
+      transition: all 0.16s;
+      position: relative;
+    }
+    .option.selected .option-circle { border-color: var(--gold); background: var(--gold); }
+    .option.selected .option-circle::after {
+      content: '';
+      position: absolute;
+      width: 6px; height: 6px;
+      background: var(--navy);
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .option-label { font-size: 1.02rem; color: var(--off-white); line-height: 1.45; }
+    .option-sub   { font-size: 0.82rem; color: var(--dim); margin-top: 4px; }
+
+    /* ─── TEXT INPUTS ─── */
+    .text-wrap { margin-bottom: 40px; }
+
+    textarea, input[type="text"], input[type="email"] {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      padding: 16px 18px;
+      outline: none;
+      transition: border-color 0.16s;
+      resize: vertical;
+    }
+    textarea:focus, input:focus { border-color: var(--gold); }
+    textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.25); }
+    textarea { min-height: 130px; }
+
+    .input-helper {
+      font-size: 0.78rem;
+      color: var(--dim);
+      margin-top: 10px;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* ─── FIELD LABEL ─── */
+    .field-label {
+      font-size: 0.73rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 8px;
+    }
+
+    /* ─── SELECT ─── */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      pointer-events: none;
+    }
+    select {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--white);
+      font-family: 'Georgia', serif;
+      font-size: 0.95rem;
+      padding: 14px 40px 14px 16px;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.16s;
+    }
+    select:focus { border-color: var(--gold); }
+    select option { background: #1c2b3a; color: var(--white); }
+
+    /* ─── Q2 LAYOUT ─── */
+    .q2-purpose {
+      font-size: 0.88rem;
+      color: var(--dim);
+      line-height: 1.6;
+      margin-bottom: 28px;
+      font-style: italic;
+      border-left: 2px solid rgba(201,168,76,0.3);
+      padding-left: 14px;
+    }
+    .q2-section { margin-bottom: 32px; }
+    .q2-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    /* ─── CONTACT ROW ─── */
+    .contact-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 480px) { .contact-row { grid-template-columns: 1fr; } }
+    .privacy-note { font-size: 0.76rem; color: var(--dim); margin-bottom: 36px; font-style: italic; }
+
+    /* ─── RECOGNITION LIST ─── */
+    .recognition-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .rec-item {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.16s;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--card-bg);
+      font-size: 0.96rem;
+      color: var(--off-white);
+      font-style: italic;
+      line-height: 1.45;
+    }
+    .rec-item:hover { border-color: rgba(201,168,76,0.5); background: var(--gold-lt); }
+    .rec-item.selected { border-color: var(--gold); background: var(--gold-lt); }
+    .rec-item.none-item { font-style: normal; color: var(--dim); }
+    .rec-item.none-item.selected { color: var(--off-white); }
+    .rec-marker {
+      width: 18px; height: 18px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: transparent;
+      transition: all 0.16s;
+    }
+    .rec-item.selected .rec-marker { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+
+    /* ─── CONDITIONAL TEXTAREA ─── */
+    .conditional-text { display: none; margin-top: 14px; }
+    .conditional-text.visible { display: block; }
+
+    /* ─── SUCCESS STATE CHECKLIST ─── */
+    .success-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .success-item {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: all 0.16s;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--card-bg);
+      font-size: 0.95rem;
+      color: var(--off-white);
+      line-height: 1.5;
+    }
+    .success-item:hover { border-color: rgba(201,168,76,0.5); background: var(--gold-lt); }
+    .success-item.selected { border-color: var(--gold); background: var(--gold-lt); }
+    .success-marker {
+      width: 18px; height: 18px;
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: transparent;
+      transition: all 0.16s;
+    }
+    .success-item.selected .success-marker { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+    .success-open-label {
+      font-size: 0.73rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 8px;
+      margin-top: 20px;
+    }
+
+    /* ─── Q6 DUAL SECTION ─── */
+    .q6-section { margin-bottom: 32px; }
+
+    /* ─── INSIGHT CARD ─── */
+    .insight-card {
+      border-left: 3px solid var(--gold);
+      padding: 30px 30px 30px 34px;
+      background: var(--card-bg);
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 40px;
+    }
+    .insight-stat { font-size: 3rem; color: var(--gold); line-height: 1; margin-bottom: 16px; }
+    .insight-copy { font-size: 0.98rem; color: var(--off-white); line-height: 1.7; margin-bottom: 20px; }
+    .insight-obs {
+      font-size: 0.88rem;
+      color: var(--dim);
+      line-height: 1.65;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      font-style: italic;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Georgia', serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 15px 34px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.16s;
+    }
+    .btn:hover { background: var(--gold-h); }
+    .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: transparent; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.22); }
+
+    .nav-btns { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    /* ─── ERROR MESSAGES ─── */
+    .error-msg { font-size: 0.80rem; color: #e08080; margin-top: 12px; display: none; }
+    .error-msg.visible { display: block; }
+
+    /* ─── WELCOME ─── */
+    .welcome-logo { font-size: 0.88rem; letter-spacing: 0.20em; text-transform: uppercase; color: var(--gold); margin-bottom: 52px; }
+    .welcome-headline { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.16; margin-bottom: 28px; font-weight: normal; }
+    .welcome-sub { font-size: 1.05rem; color: var(--off-white); line-height: 1.72; max-width: 500px; margin-bottom: 14px; }
+    .welcome-meta { font-size: 0.80rem; color: var(--dim); margin-bottom: 52px; letter-spacing: 0.04em; }
+
+    /* ─── THANK YOU ─── */
+    .ty-mark  { font-size: 2.8rem; color: var(--gold); margin-bottom: 30px; }
+    .ty-head  { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: normal; margin-bottom: 20px; }
+    .ty-body  { font-size: 1rem; color: var(--off-white); line-height: 1.72; max-width: 460px; }
+    .ty-note  { font-size: 0.86rem; color: var(--dim); line-height: 1.65; max-width: 460px; margin-top: 20px; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ════════════════════════════════════
+     WELCOME
+════════════════════════════════════ -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-logo">Safia</div>
+  <h1 class="welcome-headline">Find out exactly where<br>your business is losing money.</h1>
+  <p class="welcome-sub">Most business problems are misdiagnosed before anyone works on them. Answer 7 questions and we'll send you a clear diagnostic report — free, same day.</p>
+  <p class="welcome-meta">3–4 minutes &nbsp;·&nbsp; 7 questions &nbsp;·&nbsp; Free</p>
+  <div>
+    <button class="btn" onclick="goToScreen('q1')">Begin Diagnostic</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q1 — ICP SELECTION
+════════════════════════════════════ -->
+<div class="screen" id="screen-q1">
+  <div class="eyebrow">Question 1 of 7</div>
+  <h2 class="question-text">What type of business are you running?</h2>
+  <p class="question-sub">This routes your answers to the right diagnostic framework.</p>
+
+  <div class="options" id="icp-options">
+    <div class="option" data-icp="trades" onclick="selectICP(this)">
+      <div class="option-circle"></div>
+      <div>
+        <div class="option-label">Specialized Trades</div>
+        <div class="option-sub">HVAC, Electrical, Mechanical, Plumbing — field service businesses</div>
+      </div>
+    </div>
+    <div class="option" data-icp="staffing" onclick="selectICP(this)">
+      <div class="option-circle"></div>
+      <div>
+        <div class="option-label">Staffing &amp; Recruiting</div>
+        <div class="option-sub">Boutique agencies, executive search, high-volume placement</div>
+      </div>
+    </div>
+    <div class="option" data-icp="ecom" onclick="selectICP(this)">
+      <div class="option-circle"></div>
+      <div>
+        <div class="option-label">E-commerce (DTC)</div>
+        <div class="option-sub">Direct-to-consumer brands, 500+ SKUs, $3M–$15M revenue range</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" id="q1-next" disabled onclick="afterICP()">Continue</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     INSIGHT CARD 1
+════════════════════════════════════ -->
+<div class="screen" id="screen-insight1">
+  <div class="eyebrow">What we know about your industry</div>
+  <div class="insight-card">
+    <div class="insight-stat" id="insight1-stat"></div>
+    <p class="insight-copy"  id="insight1-copy"></p>
+    <p class="insight-obs"   id="insight1-obs"></p>
+  </div>
+  <div>
+    <button class="btn" onclick="goToScreen('q2')">Continue</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q2 — TEAM SIZE + TOOL ADOPTION
+════════════════════════════════════ -->
+<div class="screen" id="screen-q2">
+  <div class="eyebrow">Question 2 of 7</div>
+  <h2 class="question-text">Tell us about your team.</h2>
+  <p class="q2-purpose">This benchmarks your situation against businesses your size and tells us what kinds of fixes are actually executable for your operation.</p>
+
+  <div class="q2-section">
+    <div class="field-label">Team size</div>
+    <div class="select-wrap">
+      <select id="q2-headcount">
+        <option value="" disabled selected>Select range</option>
+        <option value="1–9 employees">1–9 employees</option>
+        <option value="10–24 employees">10–24 employees</option>
+        <option value="25–49 employees">25–49 employees</option>
+        <option value="50–99 employees">50–99 employees</option>
+        <option value="100+ employees">100+ employees</option>
+      </select>
+    </div>
+  </div>
+
+  <hr class="q2-divider">
+
+  <div class="q2-section">
+    <div class="field-label">How would you describe your team's relationship with digital tools?</div>
+    <div class="options" id="q2-tools-opts" style="margin-bottom: 0;">
+      <div class="option" onclick="selectSingle(this,'q2-tools-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">Paper, phone calls, and spreadsheets — that's mostly how we operate</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q2-tools-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">Some software, but it's basic — email, simple scheduling</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q2-tools-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">Dedicated software for most of our operations</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q2-tools-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">We already use automation in parts of the business</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns" style="margin-top: 8px;">
+    <button class="btn" onclick="validateQ2()">Continue</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q1')">Back</button>
+  </div>
+  <div class="error-msg" id="q2-error">Please select your team size and current tool adoption to continue.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q3 — RECOGNITION LIST
+════════════════════════════════════ -->
+<div class="screen" id="screen-q3">
+  <div class="eyebrow">Question 3 of 7</div>
+  <h2 class="question-text">Which of these sounds familiar?</h2>
+  <p class="question-sub">Select all that apply. These are the phrases we hear most often from businesses like yours.</p>
+
+  <div class="recognition-grid" id="q3-list"></div>
+
+  <div class="conditional-text" id="q3-conditional">
+    <div class="field-label">Describe what's actually going on</div>
+    <textarea id="q3-none-text" placeholder="Your situation, in your own words." rows="3"></textarea>
+  </div>
+
+  <div class="nav-btns" style="margin-top: 20px;">
+    <button class="btn" onclick="validateQ3()">Continue</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q2')">Back</button>
+  </div>
+  <div class="error-msg" id="q3-error">Please select at least one option to continue.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     INSIGHT CARD 2
+════════════════════════════════════ -->
+<div class="screen" id="screen-insight2">
+  <div class="eyebrow">What this usually means</div>
+  <div class="insight-card">
+    <div class="insight-stat" id="insight2-stat"></div>
+    <p class="insight-copy"  id="insight2-copy"></p>
+    <p class="insight-obs"   id="insight2-obs"></p>
+  </div>
+  <div>
+    <button class="btn" onclick="goToScreen('q4')">Continue</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q4 — SUCCESS STATE (new)
+════════════════════════════════════ -->
+<div class="screen" id="screen-q4">
+  <div class="eyebrow">Question 4 of 7</div>
+  <h2 class="question-text">What would this problem being solved actually look like?</h2>
+  <p class="question-sub">Select everything that fits. This is the clearest signal we get about what your business actually needs.</p>
+
+  <div class="success-grid" id="q4-list"></div>
+
+  <div class="success-open-label">Anything the list misses — optional</div>
+  <div class="text-wrap">
+    <textarea id="q4-open" placeholder="Describe what winning looks like in your own words." rows="3"></textarea>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="validateQ4()">Continue</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q3')">Back</button>
+  </div>
+  <div class="error-msg" id="q4-error">Please select at least one option, or describe what solved looks like in the field below.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q5 — VENT NARRATIVE
+════════════════════════════════════ -->
+<div class="screen" id="screen-q5">
+  <div class="eyebrow">Question 5 of 7</div>
+  <h2 class="question-text" id="q5-text"></h2>
+  <p class="question-sub">Don't filter it. The messier the answer, the more useful it is.</p>
+
+  <div class="text-wrap">
+    <textarea id="q5-answer" rows="6"></textarea>
+    <div class="input-helper">This is the most diagnostic field on this form. Straight talk produces a straight answer.</div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn" onclick="validateQ5()">Continue</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q4')">Back</button>
+  </div>
+  <div class="error-msg" id="q5-error">Please tell us what's going on — even a sentence helps.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q6 — REVENUE + URGENCY
+════════════════════════════════════ -->
+<div class="screen" id="screen-q6">
+  <div class="eyebrow">Question 6 of 7</div>
+  <h2 class="question-text">A little more context on the business.</h2>
+  <p class="question-sub">Two quick ones — this is the last data screen before your contact details.</p>
+
+  <div class="q6-section">
+    <div class="field-label">Annual revenue range</div>
+    <div class="select-wrap">
+      <select id="q6-revenue">
+        <option value="" disabled selected>Select range</option>
+        <option value="Under $1M">Under $1M</option>
+        <option value="$1M–$3M">$1M–$3M</option>
+        <option value="$3M–$7M">$3M–$7M</option>
+        <option value="$7M–$15M">$7M–$15M</option>
+        <option value="$15M+">$15M+</option>
+      </select>
+    </div>
+  </div>
+
+  <hr class="q2-divider">
+
+  <div class="q6-section">
+    <div class="field-label">How urgent is this problem right now?</div>
+    <div class="options" id="q6-urgency-opts" style="margin-bottom: 0;">
+      <div class="option" onclick="selectSingle(this,'q6-urgency-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">It's a slow drain — I notice it, but it's not stopping us</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q6-urgency-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">It's becoming a real problem — affecting cash flow or team morale</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q6-urgency-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">It's critical — I think about this every week</div>
+      </div>
+      <div class="option" onclick="selectSingle(this,'q6-urgency-opts')">
+        <div class="option-circle"></div>
+        <div class="option-label">I'm not sure yet — that's partly why I'm here</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns" style="margin-top: 8px;">
+    <button class="btn" onclick="validateQ6()">Continue</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q5')">Back</button>
+  </div>
+  <div class="error-msg" id="q6-error">Please fill in both fields to continue.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     Q7 — CONTACT
+════════════════════════════════════ -->
+<div class="screen" id="screen-q7">
+  <div class="eyebrow">Question 7 of 7</div>
+  <h2 class="question-text">Where should we send your report?</h2>
+  <p class="question-sub">You'll hear from us today.</p>
+
+  <div class="contact-row">
+    <div>
+      <div class="field-label">First name</div>
+      <input type="text" id="q7-name" placeholder="Your first name" autocomplete="given-name">
+    </div>
+    <div>
+      <div class="field-label">Email address</div>
+      <input type="email" id="q7-email" placeholder="you@company.com" autocomplete="email">
+    </div>
+  </div>
+  <p class="privacy-note">No spam. Your report is delivered once — directly to you.</p>
+
+  <div class="nav-btns">
+    <button class="btn" id="submit-btn" onclick="submitForm()">Get My Free Diagnostic Report</button>
+    <button class="btn btn-ghost" onclick="goToScreen('q6')">Back</button>
+  </div>
+  <div class="error-msg" id="q7-error">Please enter your first name and a valid email address.</div>
+  <div class="error-msg" id="submit-error">Something went wrong — please try again.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     THANK YOU
+════════════════════════════════════ -->
+<div class="screen" id="screen-thankyou">
+  <div class="ty-mark">✦</div>
+  <h2 class="ty-head">You'll hear from us today.</h2>
+  <p class="ty-body">We'll read every word of what you wrote. The report you receive will reflect it.</p>
+  <p class="ty-note">The report identifies your primary operational bottleneck and two enabling conditions. No generic advice. No upsell. Just the clearest picture of what's actually costing you.</p>
+</div>
+
+<!-- ════════════════════════════════════
+     SCRIPT
+════════════════════════════════════ -->
+<script>
+// ─── CONFIG ───────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9MfIz_aQIikhqL6CP0tpVkyZOCpo2DJXvSMPQ3RUKKx-p4oQQpg2816LGZRDtK-9J/exec';
+
+// ─── STATE ────────────────────────────────────────────────
+const data = {
+  icp:              '',
+  headcount:        '',
+  tool_adoption:    '',
+  q3_recognition:   [],
+  q3_none_text:     '',
+  q4_success:       [],
+  q4_open:          '',
+  q5:               '',
+  revenue:          '',
+  urgency:          '',
+  name:             '',
+  email:            ''
+};
+
+// ─── SCREEN NAVIGATION ───────────────────────────────────
+const PROGRESS = {
+  'welcome':  0,  'q1': 10, 'insight1': 20,
+  'q2': 32,  'q3': 44, 'insight2': 54,
+  'q4': 64,  'q5': 74, 'q6': 84,
+  'q7': 92,  'thankyou': 100
+};
+
+function goToScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const t = document.getElementById('screen-' + id);
+  if (!t) return;
+  t.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  document.getElementById('progressBar').style.width = (PROGRESS[id] || 0) + '%';
+}
+
+// ─── ICP ─────────────────────────────────────────────────
+function selectICP(el) {
+  document.querySelectorAll('#icp-options .option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  data.icp = el.dataset.icp;
+  document.getElementById('q1-next').disabled = false;
+}
+
+function afterICP() {
+  populateInsight1();
+  populateInsight2();
+  populateQ3();
+  populateQ4();
+  populateQ5();
+  goToScreen('insight1');
+}
+
+// ─── SINGLE-SELECT ────────────────────────────────────────
+function selectSingle(el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ─── INSIGHT CARD 1 ───────────────────────────────────────
+const INSIGHT1 = {
+  trades: {
+    stat: '73%',
+    copy: 'The industry benchmark for residential specialized trades gross margin is 73%. Most operators running below 60% do not have a pricing problem — they have a revenue capture problem. The margin exists. It\'s leaking somewhere between the job site and the invoice.',
+    obs:  'In most cases, the gap between a field team\'s billable capacity and what actually reaches the invoice is structural — not a market problem and not a personnel problem. The work gets done. The billing doesn\'t follow it.'
+  },
+  staffing: {
+    stat: '7 days',
+    copy: 'Candidates who don\'t receive recruiter outreach within 7 days of applying drop their interest in the role by over 60%. For boutique agencies competing on speed, this is the single most measurable pipeline killer — and it is almost always a sequencing problem, not a hiring market problem.',
+    obs:  'The candidate experience after application is where most boutique agencies bleed. The damage is invisible until a placement cycle suddenly takes 30 days instead of 10 — by which point the root cause has been misattributed to the labor market.'
+  },
+  ecom: {
+    stat: '25%',
+    copy: 'Approximately 25% of purchase-intent search traffic has shifted from traditional search engines to AI chat interfaces since 2024. Brands that don\'t appear in AI-generated answers are invisible to a growing segment of high-intent buyers — even if their Google rankings are completely stable.',
+    obs:  'The shift is structural, not cyclical. Brands built on traditional search infrastructure are not experiencing a bad quarter. They are operating on infrastructure that no longer reaches a portion of buyers who have changed how they search.'
+  }
+};
+
+function populateInsight1() {
+  const d = INSIGHT1[data.icp];
+  document.getElementById('insight1-stat').textContent = d.stat;
+  document.getElementById('insight1-copy').textContent = d.copy;
+  document.getElementById('insight1-obs').textContent  = d.obs;
+}
+
+// ─── INSIGHT CARD 2 ───────────────────────────────────────
+const INSIGHT2 = {
+  trades: {
+    stat: '$14,000',
+    copy: 'For a specialized trades business at standard net margins (12%), a 10% callback rate on a 40-job monthly volume represents roughly $14,000 in monthly EBITDA erosion. Most owners undercount callbacks because they are logged as service calls — not as unpaid rework.',
+    obs:  'The pattern behind these signals is almost always the same: the work is getting done, but the billing infrastructure has not kept pace with the volume. The constraint is a measurement gap, not a market gap.'
+  },
+  staffing: {
+    stat: '4–8%',
+    copy: 'Boutique staffing agencies consistently achieve 4–8% cold outreach reply rates — among the highest of any B2B vertical. The constraint is rarely lead generation. It is internal capacity. Recruiters stuck on admin tasks cannot close the pipeline they already have.',
+    obs:  'The common thread in these patterns is not a bad hiring market. It is a process velocity problem — the pipeline exists, but the workflow moves too slowly to capture it before a competitor does.'
+  },
+  ecom: {
+    stat: '500+ SKUs',
+    copy: 'E-commerce brands with 500+ SKUs typically have less than 20% of their catalog covered by complete structured schema. AI search engines cannot cite what they cannot parse. The visibility gap is almost always a content architecture problem — not a brand awareness problem.',
+    obs:  'What these patterns share is a structural gap between how the catalog is built and how AI systems read it. Most ecom sites are optimized for human browsers. AI search engines need machine-readable data — and most catalogs do not provide it.'
+  }
+};
+
+function populateInsight2() {
+  const d = INSIGHT2[data.icp];
+  document.getElementById('insight2-stat').textContent = d.stat;
+  document.getElementById('insight2-copy').textContent = d.copy;
+  document.getElementById('insight2-obs').textContent  = d.obs;
+}
+
+// ─── Q3 — RECOGNITION LIST ───────────────────────────────
+const Q3_PHRASES = {
+  trades: [
+    '"We stay busy all year but the bank account doesn\'t show it."',
+    '"Technicians forget to charge for extra parts or time on site."',
+    '"Callbacks are eating into our margins — we eat the cost."',
+    '"The schedule is full but the P&L doesn\'t reflect it."',
+    '"We work hard. I\'m genuinely not sure where the money goes."'
+  ],
+  staffing: [
+    '"We\'re drowning in unqualified resumes."',
+    '"Candidates ghost us before the interview even happens."',
+    '"We lose good people to competitors who just move faster."',
+    '"Our recruiters can\'t keep up with the volume."',
+    '"We have plenty of applicants — the quality just isn\'t there."'
+  ],
+  ecom: [
+    '"Our organic traffic fell off a cliff but our rankings are stable."',
+    '"Major AI chat tools don\'t seem to know our brand exists."',
+    '"Competitors get recommended by Perplexity and ChatGPT. We don\'t."',
+    '"We show up in Google but not in AI-generated answers."',
+    '"Traffic disappeared and no algorithm update explained it."'
+  ]
+};
+
+function populateQ3() {
+  const list = document.getElementById('q3-list');
+  list.innerHTML = '';
+  Q3_PHRASES[data.icp].forEach(phrase => {
+    const div = document.createElement('div');
+    div.className = 'rec-item';
+    div.innerHTML = '<div class="rec-marker">✓</div><span>' + phrase + '</span>';
+    div.addEventListener('click', () => toggleRec(div));
+    list.appendChild(div);
+  });
+  const none = document.createElement('div');
+  none.className = 'rec-item none-item';
+  none.id = 'q3-none';
+  none.innerHTML = '<div class="rec-marker">✓</div><span>None of these — my situation is different</span>';
+  none.addEventListener('click', () => toggleNone(none));
+  list.appendChild(none);
+}
+
+function toggleRec(el) {
+  const noneEl = document.getElementById('q3-none');
+  if (noneEl && noneEl.classList.contains('selected')) {
+    noneEl.classList.remove('selected');
+    document.getElementById('q3-conditional').classList.remove('visible');
+  }
+  el.classList.toggle('selected');
+}
+
+function toggleNone(el) {
+  document.querySelectorAll('#q3-list .rec-item:not(.none-item)').forEach(r => r.classList.remove('selected'));
+  el.classList.toggle('selected');
+  const cond = document.getElementById('q3-conditional');
+  if (el.classList.contains('selected')) {
+    cond.classList.add('visible');
+    document.getElementById('q3-none-text').focus();
+  } else {
+    cond.classList.remove('visible');
+  }
+}
+
+// ─── Q4 — SUCCESS STATE ───────────────────────────────────
+const Q4_SUCCESS = {
+  trades: [
+    'Invoices reflect exactly what was done on site — parts, labor, and time',
+    'My P&L at month-end matches what the team actually billed',
+    'Callbacks are rare, and when they happen, we bill for them',
+    'I can see what each job made before we close it out',
+    'The schedule is full and the bank account shows it'
+  ],
+  staffing: [
+    'Strong candidates hear from us within 24–48 hours of applying',
+    'Recruiters spend their time placing candidates — not scheduling calls',
+    'Our fill rate and speed-to-placement are numbers we\'re proud to share',
+    'We stop losing candidates to competitors who moved a day faster',
+    'Our pipeline has real, qualified candidates — not just volume'
+  ],
+  ecom: [
+    'When someone asks an AI assistant for our product category, we appear',
+    'Our organic traffic reflects what our search rankings would suggest',
+    'Competitors don\'t outrank us in AI-generated answers',
+    'Our product catalog is fully crawlable and citable by AI search engines',
+    'Traffic sources are diversified — we\'re not dependent on one algorithm'
+  ]
+};
+
+function populateQ4() {
+  const grid = document.getElementById('q4-list');
+  grid.innerHTML = '';
+  Q4_SUCCESS[data.icp].forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'success-item';
+    div.innerHTML = '<div class="success-marker">✓</div><span>' + item + '</span>';
+    div.addEventListener('click', () => div.classList.toggle('selected'));
+    grid.appendChild(div);
+  });
+}
+
+// ─── Q5 — VENT NARRATIVE ─────────────────────────────────
+const Q5_QUESTIONS = {
+  trades:   'Think about the last time you lost money on a job — not because of the market, but because something in your own process broke down. Walk me through exactly what happened.',
+  staffing: 'Think about a strong candidate your team lost to a competitor in the last 3 months. Walk me through exactly where the process broke down — from application to the moment they went quiet.',
+  ecom:     'Think about the last time you noticed a traffic or revenue drop that your team couldn\'t clearly explain. What did you do to investigate — and what did you find, or fail to find?'
+};
+
+const Q5_PLACEHOLDERS = {
+  trades:   'Start with what happened last time it cost you.',
+  staffing: 'Start with what happened last time it cost you.',
+  ecom:     'Start with what happened last time it cost you.'
+};
+
+function populateQ5() {
+  document.getElementById('q5-text').textContent = Q5_QUESTIONS[data.icp];
+  document.getElementById('q5-answer').placeholder = Q5_PLACEHOLDERS[data.icp];
+}
+
+// ─── VALIDATION ───────────────────────────────────────────
+function validateQ2() {
+  const h   = document.getElementById('q2-headcount').value;
+  const sel = document.querySelector('#q2-tools-opts .option.selected');
+  const err = document.getElementById('q2-error');
+  if (!h || !sel) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  data.headcount     = h;
+  data.tool_adoption = sel.querySelector('.option-label').textContent;
+  goToScreen('q3');
+}
+
+function validateQ3() {
+  const selected = document.querySelectorAll('#q3-list .rec-item.selected');
+  const err = document.getElementById('q3-error');
+  if (selected.length === 0) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  data.q3_recognition = [];
+  selected.forEach(el => data.q3_recognition.push(el.querySelector('span').textContent));
+  data.q3_none_text = document.getElementById('q3-none-text').value.trim();
+  goToScreen('insight2');
+}
+
+function validateQ4() {
+  const selected  = document.querySelectorAll('#q4-list .success-item.selected');
+  const openText  = document.getElementById('q4-open').value.trim();
+  const err       = document.getElementById('q4-error');
+  if (selected.length === 0 && openText.length < 5) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  data.q4_success = [];
+  selected.forEach(el => data.q4_success.push(el.querySelector('span').textContent));
+  data.q4_open = openText;
+  goToScreen('q5');
+}
+
+function validateQ5() {
+  const v   = document.getElementById('q5-answer').value.trim();
+  const err = document.getElementById('q5-error');
+  if (v.length < 10) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  data.q5 = v;
+  goToScreen('q6');
+}
+
+function validateQ6() {
+  const r   = document.getElementById('q6-revenue').value;
+  const sel = document.querySelector('#q6-urgency-opts .option.selected');
+  const err = document.getElementById('q6-error');
+  if (!r || !sel) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  data.revenue = r;
+  data.urgency = sel.querySelector('.option-label').textContent;
+  goToScreen('q7');
+}
+
+// ─── SUBMIT ───────────────────────────────────────────────
+function submitForm() {
+  const name    = document.getElementById('q7-name').value.trim();
+  const email   = document.getElementById('q7-email').value.trim();
+  const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const err     = document.getElementById('q7-error');
+  const subErr  = document.getElementById('submit-error');
+  if (!name || !emailRx.test(email)) { err.classList.add('visible'); return; }
+  err.classList.remove('visible');
+  subErr.classList.remove('visible');
+  data.name  = name;
+  data.email = email;
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(buildPayload())
+  })
+  .then(() => goToScreen('thankyou'))
+  .catch(() => {
+    btn.textContent = 'Get My Free Diagnostic Report';
+    btn.disabled = false;
+    subErr.classList.add('visible');
+  });
+}
+
+// ─── PAYLOAD + CLAUDE PROMPT ──────────────────────────────
+const ICP_LABEL = {
+  trades:   'Specialized Trades (HVAC / Electrical / Mechanical / Plumbing)',
+  staffing: 'Boutique Staffing & Recruiting',
+  ecom:     'Mid-Market E-commerce DTC'
+};
+
+function buildClaudePrompt() {
+  const rec     = data.q3_recognition.join('\n  - ');
+  const success = data.q4_success.join('\n  - ');
+  const noneNote   = data.q3_none_text ? '\n  Client note: "' + data.q3_none_text + '"' : '';
+  const openNote   = data.q4_open      ? '\n  Client addition: "' + data.q4_open + '"'  : '';
+
+  return `SAFIA DIAGNOSTIC INTAKE — ${new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})}
+Client: ${data.name} | ${data.email}
+
+BUSINESS CONTEXT
+  ICP:              ${ICP_LABEL[data.icp]}
+  Team size:        ${data.headcount}
+  Annual revenue:   ${data.revenue}
+  Tool adoption:    ${data.tool_adoption}
+
+RECOGNITION SIGNALS — phrases client identified as familiar (Q3)
+  - ${rec}${noneNote}
+
+SUCCESS STATE — what solved looks like to this client (Q4)
+  - ${success}${openNote}
+
+CLIENT NARRATIVE — unfiltered, verbatim (Q5)
+"${data.q5}"
+
+URGENCY SIGNAL
+  ${data.urgency}
+
+─────────────────────────────────────────────────────────
+RESEARCH TASK
+
+Apply the 5-Step Deduction Sequence:
+  1. Identify the observable effect from the narrative and recognition signals
+  2. Map to known operational baselines for ${ICP_LABEL[data.icp]}
+  3. Isolate the single primary constraint (Theory of Constraints — one only)
+  4. Formulate the Primary Fix — anchor it to the success state the client described
+  5. Define 2 Enabling Conditions — causally linked to the fix; must not exceed this team's capacity (Tool adoption: ${data.tool_adoption})
+
+Also apply:
+  - Scenario System Breakdown Matrix (surface framing → actual root cause)
+  - Linguistic distortion scan: hedging / blame-framing / sunk-cost framing
+  - Problem Awareness Level: Undefined / Misframed / Well-Framed
+  - Complexity constraint filter: enabling conditions must match team's tool adoption level
+
+Produce a 1–2 page diagnostic:
+  Section 1 — Business Context Summary
+  Section 2 — Primary Finding (root cause, named and mechanistically explained)
+  Section 3 — Cost Estimate (monthly impact, benchmarked against industry data)
+  Section 4 — Enabling Condition 1 (causally linked to primary fix)
+  Section 5 — Enabling Condition 2 (causally linked to primary fix)
+  Section 6 — Fix Direction (directional — not prescriptive)
+  Section 7 — What This Is Not (rule out common misdiagnoses)
+  Section 8 — Next Steps
+─────────────────────────────────────────────────────────`;
+}
+
+function buildPayload() {
+  return {
+    timestamp:       new Date().toISOString(),
+    name:            data.name,
+    email:           data.email,
+    icp:             ICP_LABEL[data.icp],
+    headcount:       data.headcount,
+    tool_adoption:   data.tool_adoption,
+    revenue:         data.revenue,
+    urgency:         data.urgency,
+    q3_recognition:  data.q3_recognition.join(' | '),
+    q3_none_text:    data.q3_none_text,
+    q4_success:      data.q4_success.join(' | '),
+    q4_open:         data.q4_open,
+    q5_narrative:    data.q5,
+    claude_prompt:   buildClaudePrompt()
+  };
+}
+</script>
+
+</body>
+</html>
