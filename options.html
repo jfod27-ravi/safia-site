@@ -30,15 +30,7 @@
     .page {
       max-width: 740px;
       margin: 0 auto;
-      padding: 72px 28px 96px;
-    }
-
-    .logo {
-      font-size: 0.88rem;
-      letter-spacing: 0.20em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 56px;
+      padding: 48px 28px 96px;
     }
 
     .page-eyebrow {
@@ -194,12 +186,42 @@
       letter-spacing: 0.04em;
     }
     .back-link:hover { color: var(--off-white); }
+
+    /* ─── NAV ─── */
+    nav { background: var(--navy); padding: 18px 28px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .nav-inner { max-width: 740px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .nav-right { display: flex; align-items: center; gap: 24px; }
+    .nav-link { color: #a8bccf; text-decoration: none; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; font-family: 'Georgia', serif; transition: color 0.15s; }
+    .nav-link:hover { color: var(--gold); }
+    .nav-cta { background: var(--gold); color: var(--navy); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none; padding: 9px 20px; border-radius: 2px; font-family: 'Georgia', serif; transition: background 0.15s; }
+    .nav-cta:hover { background: var(--gold-h); }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-text { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--white); font-family: 'Georgia', serif; }
+    @media (max-width: 560px) { .nav-link { display: none; } }
   </style>
 </head>
 <body>
-<div class="page">
 
-  <div class="logo">Safia</div>
+<nav>
+  <div class="nav-inner">
+    <a class="logo-wrap" href="https://jfod27-ravi.github.io/safia-site">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect x="1" y="1" width="26" height="26" rx="2" stroke="#c9a84c" stroke-width="1.5"/>
+        <path d="M8 18.5C8 18.5 9.5 20.5 14 20.5C18 20.5 20 18.2 20 16C20 11.5 8.5 13 8.5 9C8.5 6.8 10.5 5 14 5C17.2 5 19 6.8 19 6.8" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="14" cy="23" r="1.2" fill="#c9a84c"/>
+      </svg>
+      <span class="logo-text">Safia</span>
+    </a>
+    <div class="nav-right">
+      <a class="nav-link" href="https://jfod27-ravi.github.io/safia-site/#how-it-works">How it works</a>
+      <a class="nav-link" href="https://jfod27-ravi.github.io/safia-site/digest.html">Digest</a>
+      <a class="nav-link" href="https://jfod27-ravi.github.io/safia-site/options.html">Services</a>
+      <a class="nav-cta" href="https://jfod27-ravi.github.io/safia-site/intake.html">Get Your Assessment</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
 
   <div class="page-eyebrow">Services</div>
   <h1 class="page-head">Choose what you need next.</h1>

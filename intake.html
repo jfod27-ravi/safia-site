@@ -359,8 +359,14 @@
     .error-msg { font-size: 0.80rem; color: #e08080; margin-top: 12px; display: none; }
     .error-msg.visible { display: block; }
 
+    /* ─── FORM HEADER ─── */
+    .form-header { position: fixed; top: 3px; left: 0; right: 0; padding: 13px 28px; display: flex; align-items: center; justify-content: space-between; z-index: 100; background: var(--navy); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .fh-logo { font-size: 0.82rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); text-decoration: none; font-family: 'Georgia', serif; }
+    .fh-back { font-size: 0.76rem; color: var(--dim); text-decoration: none; font-family: 'Georgia', serif; letter-spacing: 0.04em; }
+    .fh-back:hover { color: var(--off-white); }
+
     /* ─── WELCOME ─── */
-    .welcome-logo { font-size: 0.88rem; letter-spacing: 0.20em; text-transform: uppercase; color: var(--gold); margin-bottom: 52px; }
+    .welcome-logo { display: none; }
     .welcome-headline { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.16; margin-bottom: 28px; font-weight: normal; }
     .welcome-sub { font-size: 1.05rem; color: var(--off-white); line-height: 1.72; max-width: 500px; margin-bottom: 14px; }
     .welcome-meta { font-size: 0.80rem; color: var(--dim); margin-bottom: 52px; letter-spacing: 0.04em; }
@@ -376,6 +382,11 @@
 <body>
 
 <div class="progress-bar" id="progressBar"></div>
+
+<header class="form-header">
+  <a class="fh-logo" href="https://jfod27-ravi.github.io/safia-site">Safia</a>
+  <a class="fh-back" href="https://jfod27-ravi.github.io/safia-site">← Back to main</a>
+</header>
 
 <!-- ════════════════════════════════════
      WELCOME
@@ -986,6 +997,18 @@ function submitForm() {
   // Generate token before fetch — store immediately so it survives network failure
   const token = generateUUID();
   try { localStorage.setItem('safia_token', token); } catch(e) {}
+
+  // Save context for paid intake pre-fill
+  try {
+    localStorage.setItem('safia_context', JSON.stringify({
+      name:         data.name,
+      email:        data.email,
+      icp:          data.icp,
+      headcount:    data.headcount,
+      revenue:      data.revenue,
+      tool_adoption: data.tool_adoption
+    }));
+  } catch(e) {}
 
   const btn = document.getElementById('submit-btn');
   btn.textContent = 'Sending…';
