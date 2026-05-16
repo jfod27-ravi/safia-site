@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safia — Services</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0f1b2d;
+      --gold:      #c9a84c;
+      --gold-h:    #b8943f;
+      --gold-lt:   rgba(201, 168, 76, 0.10);
+      --white:     #ffffff;
+      --off-white: rgba(255, 255, 255, 0.82);
+      --dim:       rgba(255, 255, 255, 0.42);
+      --border:    rgba(255, 255, 255, 0.11);
+      --card-bg:   rgba(255, 255, 255, 0.04);
+    }
+
+    html { height: 100%; }
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100%;
+    }
+
+    .page {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 72px 28px 96px;
+    }
+
+    .logo {
+      font-size: 0.88rem;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 56px;
+    }
+
+    .page-eyebrow {
+      font-size: 0.70rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .page-head {
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: normal;
+      line-height: 1.16;
+      margin-bottom: 18px;
+    }
+
+    .page-sub {
+      font-size: 1.02rem;
+      color: var(--off-white);
+      line-height: 1.70;
+      max-width: 520px;
+      margin-bottom: 64px;
+    }
+
+    /* ─── CARDS ─── */
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 36px 32px;
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card.featured {
+      border-color: rgba(201, 168, 76, 0.4);
+      background: rgba(201, 168, 76, 0.04);
+    }
+
+    .card-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .card-head {
+      font-size: clamp(1.2rem, 2.8vw, 1.65rem);
+      font-weight: normal;
+      margin-bottom: 14px;
+      line-height: 1.26;
+    }
+
+    .card-body {
+      font-size: 0.96rem;
+      color: var(--off-white);
+      line-height: 1.70;
+      margin-bottom: 28px;
+    }
+
+    .card-list {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    .card-list li {
+      font-size: 0.91rem;
+      color: var(--off-white);
+      line-height: 1.6;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+    .card-list li:last-child { border-bottom: none; }
+    .card-list li::before {
+      content: '→';
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .card-price {
+      font-size: 1.9rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .card-price-note {
+      font-size: 0.78rem;
+      color: var(--dim);
+      margin-bottom: 24px;
+    }
+
+    /* ─── COMING SOON CARD ─── */
+    .card.coming-soon {
+      opacity: 0.6;
+    }
+    .coming-soon-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 4px 10px;
+      margin-bottom: 14px;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Georgia', serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 15px 34px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.16s;
+      text-decoration: none;
+    }
+    .btn:hover { background: var(--gold-h); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: transparent; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.22); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 64px 0 40px;
+    }
+
+    .back-link {
+      font-size: 0.84rem;
+      color: var(--dim);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+    .back-link:hover { color: var(--off-white); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo">Safia</div>
+
+  <div class="page-eyebrow">Services</div>
+  <h1 class="page-head">Choose what you need next.</h1>
+  <p class="page-sub">The free diagnostic names the problem. These services tell you why it exists and how to fix it — or take the work off your plate entirely.</p>
+
+  <div class="cards">
+
+    <!-- ── CARD 1: SOLUTION REPORT ── -->
+    <div class="card featured">
+      <div class="card-eyebrow">Solution Report</div>
+      <h2 class="card-head">Find out exactly why — and what to do.</h2>
+      <p class="card-body">The Problem Finder Report told you what the problem is and what it costs. The Solution Report goes deeper: root cause analysis, a step-by-step fix direction, and a map of the enabling conditions your team needs in place first.</p>
+      <ul class="card-list">
+        <li>Root cause analysis — mechanistic, not generic</li>
+        <li>Fix direction with implementation sequence</li>
+        <li>Two enabling conditions defined and calibrated to your capacity</li>
+        <li>Common misdiagnoses ruled out — so you don't fix the wrong thing</li>
+        <li>Delivered as a PDF report, same day</li>
+      </ul>
+      <div class="card-price">$197</div>
+      <div class="card-price-note">One-time. No subscription.</div>
+      <a href="paid-diagnostic.html" class="btn" style="align-self: flex-start;">Get the Solution Report</a>
+    </div>
+
+    <!-- ── CARD 2: AI AGENTIC SERVICES ── -->
+    <div class="card coming-soon">
+      <div class="coming-soon-badge">Coming Soon</div>
+      <h2 class="card-head">AI Agentic Services</h2>
+      <p class="card-body">Once your problem is diagnosed, we build the fix — automated workflows, AI-powered dispatch, lead qualification, and process automation designed specifically for your operation. No generic software. Built around your constraint.</p>
+      <ul class="card-list">
+        <li>Custom AI workflow design</li>
+        <li>Implementation, not just advice</li>
+        <li>Built on your diagnostic — no redundant discovery</li>
+      </ul>
+      <p style="font-size: 0.84rem; color: var(--dim); font-style: italic; margin-top: 8px;">Available soon. Start with the Solution Report to get on the list.</p>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+  <a href="https://jfod27-ravi.github.io/safia-site" class="back-link">← Back to main page</a>
+
+</div>
+</body>
+</html>

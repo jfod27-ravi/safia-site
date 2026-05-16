@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safia — Solution Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0f1b2d;
+      --gold:      #c9a84c;
+      --gold-h:    #b8943f;
+      --gold-lt:   rgba(201, 168, 76, 0.10);
+      --white:     #ffffff;
+      --off-white: rgba(255, 255, 255, 0.82);
+      --dim:       rgba(255, 255, 255, 0.42);
+      --border:    rgba(255, 255, 255, 0.11);
+      --card-bg:   rgba(255, 255, 255, 0.04);
+    }
+
+    html { height: 100%; }
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100%;
+    }
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 72px 28px 96px;
+    }
+
+    .logo {
+      font-size: 0.88rem;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 56px;
+    }
+
+    /* ─── HERO ─── */
+    .eyebrow {
+      font-size: 0.70rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .hero-head {
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: normal;
+      line-height: 1.14;
+      margin-bottom: 18px;
+    }
+
+    .hero-sub {
+      font-size: 1.04rem;
+      color: var(--off-white);
+      line-height: 1.70;
+      max-width: 520px;
+      margin-bottom: 52px;
+    }
+
+    /* ─── WHAT YOU GET ─── */
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 20px;
+    }
+
+    .deliverable-list {
+      list-style: none;
+      margin-bottom: 48px;
+    }
+
+    .deliverable-list li {
+      display: flex;
+      gap: 18px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .deliverable-list li:first-child { border-top: 1px solid var(--border); }
+
+    .del-num {
+      font-size: 0.78rem;
+      color: var(--gold);
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      margin-top: 3px;
+      width: 22px;
+    }
+
+    .del-body {}
+    .del-title {
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 5px;
+    }
+    .del-desc {
+      font-size: 0.88rem;
+      color: var(--dim);
+      line-height: 1.6;
+    }
+
+    /* ─── CONTRAST BLOCK ─── */
+    .contrast-block {
+      border-left: 3px solid var(--gold);
+      padding: 24px 26px;
+      background: var(--card-bg);
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 48px;
+    }
+
+    .contrast-head {
+      font-size: 1.05rem;
+      color: var(--white);
+      margin-bottom: 18px;
+    }
+
+    .contrast-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 500px) { .contrast-row { grid-template-columns: 1fr; } }
+
+    .contrast-col {}
+    .contrast-col-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+    }
+    .contrast-col-label.gold { color: var(--gold); }
+
+    .contrast-col ul {
+      list-style: none;
+    }
+    .contrast-col ul li {
+      font-size: 0.88rem;
+      color: var(--off-white);
+      line-height: 1.55;
+      padding: 4px 0;
+      padding-left: 16px;
+      position: relative;
+    }
+    .contrast-col ul li::before {
+      content: '·';
+      position: absolute;
+      left: 4px;
+      color: var(--dim);
+    }
+    .contrast-col.gold-col ul li::before { color: var(--gold); }
+
+    /* ─── PRICING ─── */
+    .pricing-block {
+      border: 1px solid rgba(201, 168, 76, 0.35);
+      border-radius: 4px;
+      padding: 36px 32px;
+      background: rgba(201, 168, 76, 0.04);
+      margin-bottom: 20px;
+    }
+
+    .price-head {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      font-weight: normal;
+      margin-bottom: 16px;
+    }
+
+    .price-value {
+      font-size: 3rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .price-note {
+      font-size: 0.82rem;
+      color: var(--dim);
+      margin-bottom: 28px;
+    }
+
+    .delivery-note {
+      font-size: 0.88rem;
+      color: var(--off-white);
+      line-height: 1.6;
+      margin-bottom: 28px;
+      padding: 14px 18px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--card-bg);
+    }
+
+    /* ─── BUTTON ─── */
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Georgia', serif;
+      font-size: 0.90rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 17px 40px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.16s;
+      text-decoration: none;
+      width: 100%;
+      text-align: center;
+      display: block;
+    }
+    .btn:hover { background: var(--gold-h); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+      font-size: 0.82rem;
+      padding: 13px 28px;
+      display: inline-block;
+      width: auto;
+    }
+    .btn-ghost:hover { background: transparent; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.22); }
+
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 56px 0 36px;
+    }
+
+    .back-link {
+      font-size: 0.84rem;
+      color: var(--dim);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--off-white); }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo">Safia</div>
+
+  <div class="eyebrow">Solution Report</div>
+  <h1 class="hero-head">You know what's wrong.<br>Now find out why — and what to do.</h1>
+  <p class="hero-sub">The Problem Finder Report named the constraint. The Solution Report is the second half: root cause, fix direction, and the enabling conditions your team needs in place before the fix can hold.</p>
+
+  <!-- What You Get -->
+  <div class="section-label">What the Solution Report contains</div>
+  <ul class="deliverable-list">
+    <li>
+      <span class="del-num">01</span>
+      <div class="del-body">
+        <div class="del-title">Root Cause Analysis</div>
+        <div class="del-desc">Why the primary constraint exists at a mechanical level — not just what it produces. Includes a distortion scan of your intake responses to separate what you described from what is actually driving the problem.</div>
+      </div>
+    </li>
+    <li>
+      <span class="del-num">02</span>
+      <div class="del-body">
+        <div class="del-title">Fix Direction &amp; Implementation Sequence</div>
+        <div class="del-desc">A step-by-step direction calibrated to your team's current tool adoption level and operational capacity. Not a generic prescription — built around your specific constraints.</div>
+      </div>
+    </li>
+    <li>
+      <span class="del-num">03</span>
+      <div class="del-body">
+        <div class="del-title">Two Enabling Conditions</div>
+        <div class="del-desc">The two structural prerequisites that must be in place before the primary fix takes hold. Most implementations fail because these are skipped.</div>
+      </div>
+    </li>
+    <li>
+      <span class="del-num">04</span>
+      <div class="del-body">
+        <div class="del-title">Common Misdiagnoses — Ruled Out</div>
+        <div class="del-desc">The three most likely wrong diagnoses for your situation — named and eliminated. So you don't spend money fixing the wrong thing.</div>
+      </div>
+    </li>
+    <li>
+      <span class="del-num">05</span>
+      <div class="del-body">
+        <div class="del-title">Next Steps</div>
+        <div class="del-desc">A prioritized action sequence. The first move, the second move, and what to stop doing immediately.</div>
+      </div>
+    </li>
+  </ul>
+
+  <!-- Free vs Paid contrast -->
+  <div class="contrast-block">
+    <p class="contrast-head">How this builds on your free report</p>
+    <div class="contrast-row">
+      <div class="contrast-col">
+        <div class="contrast-col-label">Problem Finder (Free)</div>
+        <ul>
+          <li>Names the primary problem</li>
+          <li>Estimates the monthly cost</li>
+          <li>Benchmarks against your industry</li>
+        </ul>
+      </div>
+      <div class="contrast-col gold-col">
+        <div class="contrast-col-label gold">Solution Report ($197)</div>
+        <ul>
+          <li>Explains why it exists</li>
+          <li>Defines the fix direction</li>
+          <li>Maps enabling conditions</li>
+          <li>Rules out the wrong fixes</li>
+          <li>Gives you the first move</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing + CTA -->
+  <div class="pricing-block">
+    <h2 class="price-head">Solution Report</h2>
+    <div class="price-value">$197</div>
+    <div class="price-note">One-time. No subscription. No retainer.</div>
+    <div class="delivery-note">
+      After payment, you'll complete a short 9-question intake. The report is delivered to your email as a PDF — same day in most cases, within 24 hours maximum.
+    </div>
+    <div style="
+      border: 1px solid rgba(201,168,76,0.30);
+      border-radius: 3px;
+      padding: 18px 22px;
+      text-align: center;
+      background: rgba(201,168,76,0.05);
+    ">
+      <div style="font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Enrollment Opening Soon</div>
+      <div style="font-size:0.90rem;color:var(--off-white);line-height:1.6;">Checkout is being finalized. Check back shortly — or <a href="https://jfod27-ravi.github.io/safia-site" style="color:var(--gold);text-decoration:none;">return to the main page</a> to start your free diagnostic.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="btn-row">
+    <a href="options.html" class="back-link">← Back to services</a>
+    &nbsp;&nbsp;
+    <a href="https://jfod27-ravi.github.io/safia-site" class="back-link">Main page</a>
+  </div>
+
+</div>
+</body>
+</html>

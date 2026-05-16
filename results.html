@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Safia — Your Diagnostic Results</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0f1b2d;
+      --ink:       #1c2b3a;
+      --gold:      #c9a84c;
+      --gold-h:    #b8943f;
+      --gold-lt:   rgba(201, 168, 76, 0.10);
+      --white:     #ffffff;
+      --off-white: rgba(255, 255, 255, 0.82);
+      --dim:       rgba(255, 255, 255, 0.42);
+      --border:    rgba(255, 255, 255, 0.11);
+      --card-bg:   rgba(255, 255, 255, 0.04);
+      --locked-bg: rgba(255, 255, 255, 0.02);
+    }
+
+    html { height: 100%; }
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--navy);
+      color: var(--white);
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    /* ─── LAYOUT ─── */
+    .page {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 72px 28px 96px;
+    }
+
+    .logo {
+      font-size: 0.88rem;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 56px;
+    }
+
+    /* ─── STATES ─── */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* ─── PENDING STATE ─── */
+    .pending-mark { font-size: 2.4rem; color: var(--gold); margin-bottom: 28px; }
+    .pending-head { font-size: clamp(1.5rem, 3.5vw, 2.2rem); font-weight: normal; margin-bottom: 18px; }
+    .pending-body { font-size: 1rem; color: var(--off-white); line-height: 1.72; max-width: 480px; margin-bottom: 14px; }
+    .pending-note { font-size: 0.84rem; color: var(--dim); line-height: 1.6; font-style: italic; max-width: 440px; }
+
+    /* ─── NOT FOUND STATE ─── */
+    .nf-head { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: normal; margin-bottom: 16px; }
+    .nf-body { font-size: 1rem; color: var(--off-white); line-height: 1.7; max-width: 460px; margin-bottom: 36px; }
+
+    /* ─── RESULTS STATE ─── */
+    .results-eyebrow {
+      font-size: 0.70rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .results-head {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: normal;
+      line-height: 1.18;
+      margin-bottom: 10px;
+    }
+
+    .results-sub {
+      font-size: 1rem;
+      color: var(--off-white);
+      line-height: 1.65;
+      max-width: 540px;
+      margin-bottom: 48px;
+    }
+
+    /* ─── REPORT SECTION ─── */
+    .report-section {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--card-bg);
+    }
+
+    .section-tag {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .tag-free {
+      background: rgba(201, 168, 76, 0.18);
+      color: var(--gold);
+      border: 1px solid rgba(201, 168, 76, 0.3);
+    }
+    .tag-locked {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--dim);
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.96rem;
+      color: var(--off-white);
+      font-weight: normal;
+    }
+    .section-title.dimmed { color: var(--dim); }
+
+    .section-body {
+      padding: 22px 22px 26px;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-body p {
+      font-size: 0.96rem;
+      color: var(--off-white);
+      line-height: 1.72;
+      margin-bottom: 14px;
+    }
+    .section-body p:last-child { margin-bottom: 0; }
+
+    /* ─── REPORT CTA BUTTON ─── */
+    .report-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Georgia', serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: 3px;
+      text-decoration: none;
+      transition: background 0.16s;
+      margin-top: 8px;
+    }
+    .report-link-btn:hover { background: var(--gold-h); }
+
+    /* ─── LOCKED SECTION ─── */
+    .locked-body {
+      padding: 22px 22px 26px;
+      border-top: 1px solid var(--border);
+      background: var(--locked-bg);
+      position: relative;
+    }
+
+    .locked-blur {
+      filter: blur(4px);
+      user-select: none;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .locked-text {
+      font-size: 0.94rem;
+      color: var(--off-white);
+      line-height: 1.72;
+    }
+
+    .locked-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lock-icon {
+      font-size: 0.78rem;
+      color: var(--dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ─── DIVIDER ─── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    /* ─── UPGRADE CARD ─── */
+    .upgrade-card {
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: 4px;
+      padding: 32px 30px;
+      background: rgba(201, 168, 76, 0.04);
+      margin-top: 32px;
+    }
+
+    .upgrade-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+
+    .upgrade-head {
+      font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+      font-weight: normal;
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+
+    .upgrade-body {
+      font-size: 0.96rem;
+      color: var(--off-white);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .upgrade-list {
+      list-style: none;
+      margin: 18px 0 28px;
+    }
+    .upgrade-list li {
+      font-size: 0.93rem;
+      color: var(--off-white);
+      line-height: 1.6;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+    .upgrade-list li:last-child { border-bottom: none; }
+    .upgrade-list li::before {
+      content: '→';
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .upgrade-price {
+      font-size: 1.8rem;
+      color: var(--gold);
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+    .upgrade-price-note {
+      font-size: 0.80rem;
+      color: var(--dim);
+      margin-bottom: 24px;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Georgia', serif;
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 15px 34px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.16s;
+      text-decoration: none;
+    }
+    .btn:hover { background: var(--gold-h); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    .btn-ghost:hover { background: transparent; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.22); }
+
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+
+    /* ─── SPINNER ─── */
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 28px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="logo">Safia</div>
+
+  <!-- ── LOADING STATE ── -->
+  <div class="state active" id="state-loading">
+    <div class="spinner"></div>
+    <p style="color: var(--dim); font-size: 0.9rem;">Retrieving your results…</p>
+  </div>
+
+  <!-- ── PENDING STATE ── -->
+  <div class="state" id="state-pending">
+    <div class="pending-mark">◎</div>
+    <h1 class="pending-head">Your diagnostic is being prepared.</h1>
+    <p class="pending-body">We have your intake. The analysis is running now — you'll receive an email when your Problem Finder Report is ready, typically within the same business day.</p>
+    <p class="pending-note">This page will update automatically once the report is complete. You can bookmark it and return at any time.</p>
+    <div style="margin-top: 36px;">
+      <button class="btn btn-ghost" onclick="checkAgain()" style="cursor:pointer;">Check again</button>
+    </div>
+  </div>
+
+  <!-- ── NOT FOUND STATE ── -->
+  <div class="state" id="state-notfound">
+    <h1 class="nf-head">No diagnostic found.</h1>
+    <p class="nf-body">We couldn't find a diagnostic linked to this browser. This can happen if you submitted from a different device or cleared your browser data.</p>
+    <div class="btn-row">
+      <a href="https://jfod27-ravi.github.io/safia-site/intake.html" class="btn" style="text-decoration:none;">Start a New Diagnostic</a>
+      <a href="https://jfod27-ravi.github.io/safia-site" class="btn btn-ghost" style="text-decoration:none;">← Main page</a>
+    </div>
+  </div>
+
+  <!-- ── RESULTS STATE ── -->
+  <div class="state" id="state-results">
+    <div class="results-eyebrow">Problem Finder Report</div>
+    <h1 class="results-head">Your diagnostic is ready.</h1>
+    <p class="results-sub">This report names your primary problem and what it's costing you. The sections below are drawn directly from your intake responses and benchmarked against your industry.</p>
+
+    <!-- Section 1 — Business Context (FREE) -->
+    <div class="report-section">
+      <div class="section-header">
+        <span class="section-tag tag-free">Included</span>
+        <span class="section-title">Business Context Summary</span>
+      </div>
+      <div class="section-body">
+        <p>Your intake has been reviewed and routed to the correct diagnostic framework for your business type, size, and current tool environment. The findings below reflect that context.</p>
+        <p>Your full Problem Finder Report is linked below. It contains your primary pain signal, named precisely, and the estimated monthly cost of the problem — benchmarked against businesses your size and type.</p>
+        <a id="report-drive-link" href="#" target="_blank" class="report-link-btn">
+          Open My Problem Finder Report ↗
+        </a>
+      </div>
+    </div>
+
+    <!-- Section 2 — Primary Finding (FREE — teaser) -->
+    <div class="report-section">
+      <div class="section-header">
+        <span class="section-tag tag-free">Included</span>
+        <span class="section-title">Primary Pain Signal — Named &amp; Costed</span>
+      </div>
+      <div class="section-body">
+        <p>The report identifies one primary operational problem — not a list of possibilities. It names the constraint, describes what's causing it mechanically, and estimates what it's costing you monthly based on industry benchmarks.</p>
+        <p>This is the <em>what</em> and the <em>where</em>. Most businesses have never had this stated this clearly.</p>
+      </div>
+    </div>
+
+    <!-- Section 3 — Root Cause Analysis (LOCKED) -->
+    <div class="report-section">
+      <div class="section-header">
+        <span class="section-tag tag-locked">Solution Report</span>
+        <span class="section-title dimmed">Root Cause Analysis</span>
+      </div>
+      <div class="locked-body">
+        <div class="locked-blur locked-text">
+          The root cause analysis examines why the primary constraint exists at a mechanical level — not just what it produces, but what created it and what keeps it in place. This section includes a linguistic distortion scan of your narrative to separate what you described from what is actually happening.
+        </div>
+        <div class="locked-overlay">
+          <span class="lock-icon">⚿ &nbsp;Included in the Solution Report</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 — Fix Direction (LOCKED) -->
+    <div class="report-section">
+      <div class="section-header">
+        <span class="section-tag tag-locked">Solution Report</span>
+        <span class="section-title dimmed">Fix Direction &amp; Implementation Path</span>
+      </div>
+      <div class="locked-body">
+        <div class="locked-blur locked-text">
+          The fix direction section outlines the specific sequence of changes required to eliminate the primary constraint. It is calibrated to your team's current tool adoption level and capacity — not a generic prescription. Two enabling conditions are defined that must be in place before the primary fix takes hold.
+        </div>
+        <div class="locked-overlay">
+          <span class="lock-icon">⚿ &nbsp;Included in the Solution Report</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5 — What This Is Not (LOCKED) -->
+    <div class="report-section">
+      <div class="section-header">
+        <span class="section-tag tag-locked">Solution Report</span>
+        <span class="section-title dimmed">Common Misdiagnoses — Ruled Out</span>
+      </div>
+      <div class="locked-body">
+        <div class="locked-blur locked-text">
+          Most businesses misattribute their primary constraint to a market problem, a personnel problem, or a technology problem — when the actual cause is structural. This section names the three most common misdiagnoses for your situation and explains why they are not the constraint.
+        </div>
+        <div class="locked-overlay">
+          <span class="lock-icon">⚿ &nbsp;Included in the Solution Report</span>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Upgrade Card -->
+    <div class="upgrade-card">
+      <div class="upgrade-eyebrow">Solution Report — $197</div>
+      <h2 class="upgrade-head">You know what the problem is.<br>The Solution Report tells you why — and what to do.</h2>
+      <p class="upgrade-body">The Problem Finder Report names the constraint. The Solution Report goes deeper: root cause analysis, a ruled-out misdiagnosis list, and a step-by-step fix direction calibrated to your team's actual capacity.</p>
+      <ul class="upgrade-list">
+        <li>Root cause analysis — mechanistic, not generic</li>
+        <li>Fix direction with implementation sequence</li>
+        <li>Two enabling conditions your team must have in place first</li>
+        <li>Common misdiagnoses ruled out — so you don't fix the wrong thing</li>
+        <li>Delivered same day</li>
+      </ul>
+      <div class="upgrade-price">$197</div>
+      <div class="upgrade-price-note">One-time. No subscription. Delivered as a PDF report.</div>
+      <div class="btn-row">
+        <a href="https://jfod27-ravi.github.io/safia-site/paid-diagnostic.html" class="btn" style="text-decoration:none;">Get the Solution Report</a>
+        <a href="https://jfod27-ravi.github.io/safia-site" class="btn btn-ghost" style="text-decoration:none;">← Main page</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9MfIz_aQIikhqL6CP0tpVkyZOCpo2DJXvSMPQ3RUKKx-p4oQQpg2816LGZRDtK-9J/exec';
+
+function showState(id) {
+  document.querySelectorAll('.state').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('state-' + id);
+  if (el) el.classList.add('active');
+}
+
+function checkAgain() {
+  showState('loading');
+  lookupToken();
+}
+
+function lookupToken() {
+  let token = '';
+  try { token = localStorage.getItem('safia_token') || ''; } catch(e) {}
+
+  if (!token) {
+    showState('notfound');
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL + '?token=' + encodeURIComponent(token))
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'ready' && data.link) {
+        const linkEl = document.getElementById('report-drive-link');
+        if (linkEl) linkEl.href = data.link;
+        showState('results');
+      } else if (data.status === 'pending') {
+        showState('pending');
+      } else {
+        showState('notfound');
+      }
+    })
+    .catch(() => {
+      // Network error — show pending as safe fallback
+      showState('pending');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', lookupToken);
+</script>
+</body>
+</html>
